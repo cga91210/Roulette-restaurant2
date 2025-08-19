@@ -53,7 +53,7 @@
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
       border-bottom: 40px solid #ff5656; /* flèche vers le bas */
-      margin: 0 auto -15px auto; /* 🔼 on remonte la flèche */
+      margin: 0 auto -25px auto; /* 🔼 on remonte la flèche */
       z-index: 10;
       position: relative;
     }
@@ -66,7 +66,7 @@
 </head>
 <body>
   <h1>Sansushi Clamart 🍣</h1>
-  <p class="subtitle">Merci pour votre avis Google 💬<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
+  <p class="subtitle">Merci pour votre avis Google ⭐️<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
   
   <div class="pointer"></div>
   <canvas id="wheelCanvas" width="350" height="350"></canvas>
@@ -74,7 +74,7 @@
   <button id="spinBtn">Tournez la roue 🎁</button>
   <p id="result"></p>
   
-  <p class="note">*Sous réserve de nous montrer la preuve de votre avis Google</p>
+  <p class="note">*Sous réserve de nous montrer la preuve de votre avis Google.</p>
 
   <script>
     const canvas = document.getElementById("wheelCanvas");
@@ -149,7 +149,7 @@
         const arcd = (arc * 180) / Math.PI;
         const index = Math.floor((360 - (degrees % 360)) / arcd) % rewards.length;
 
-        result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+        result.innerText = `🎉 Félicitations ! Vous avez gagné un : ${rewards[index]}`;
         localStorage.setItem("wheelPlayed", "true");
         spinBtn.disabled = true;
         spinBtn.innerText = "Vous avez déjà joué 🎉";
