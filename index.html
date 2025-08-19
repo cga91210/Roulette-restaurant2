@@ -23,7 +23,7 @@
       color: #fff;
     }
     #wheelCanvas {
-      margin-top: 10px;
+      margin-top: 0px;
       border-radius: 50%;
     }
     #spinBtn {
@@ -52,11 +52,10 @@
       height: 0; 
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-top: 40px solid #ff5656; /* vers le bas */
-      margin: 0 auto;
-      position: relative;
-      top: 20px;
+      border-bottom: 40px solid #ff5656; /* flèche vers le bas */
+      margin: 0 auto -15px auto; /* 🔼 on remonte la flèche */
       z-index: 10;
+      position: relative;
     }
     .note {
       margin-top: 40px;
@@ -88,7 +87,7 @@
       "🧋 Bubble Tea",
       "🍫 Fondant\nau chocolat",
       "🍰 Tiramisu",
-      "🥟 Nems Nutella",
+      "🥤 Boisson",
       "☕️ Café"
     ];
     const colors = ["#ff5656", "#111", "#ff5656", "#111", "#ff5656", "#111"];
@@ -145,10 +144,10 @@
       } else {
         cancelAnimationFrame(spinTimeout);
 
-        // Calcule le segment gagnant basé sur la flèche en haut
-        const degrees = (startAngle * 180) / Math.PI;
+        // Correction de l’alignement avec la flèche (ajout de 90° car flèche en haut)
+        const degrees = (startAngle * 180) / Math.PI + 90;
         const arcd = (arc * 180) / Math.PI;
-        const index = Math.floor(((degrees % 360) / arcd)) % rewards.length;
+        const index = Math.floor((360 - (degrees % 360)) / arcd) % rewards.length;
 
         result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
         localStorage.setItem("wheelPlayed", "true");
