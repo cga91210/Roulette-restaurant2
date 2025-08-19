@@ -25,4 +25,133 @@
       margin: 20px auto;
       display: block;
     }
-    .po
+    .pointer {
+      width: 0; 
+      height: 0; 
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid #ff5656;
+      margin: 0 auto;
+      position: relative;
+      top: 10px;
+    }
+    button {
+      background: #ff5656;
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 18px;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #e04a4a;
+    }
+    #result {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #ff5656;
+    }
+    p {
+      font-size: 0.8em;
+      margin-top: 30px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sansushi Clamart 🍣</h1>
+  <h2>Nous vous remercions pour votre avis Google.<br> Tournez la roue dès maintenant et remportez votre récompense</h2>
+
+  <div class="pointer"></div>
+  <canvas id="wheelCanvas" width="500" height="500"></canvas>
+  <button id="spin">Tournez la roue 🎁</button>
+  <div id="result"></div>
+
+  <p>*Sous réserve de nous montrer la preuve de votre avis Google.</p>
+
+  <script>
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width;
+    const radius = size / 2;
+    const rewards = [
+      "🥤 Boisson",
+      "🧋 Bubble Tea",
+      "🍫 Moelleux au chocolat",
+      "🍮 Tiramisu",
+      "🥤 Boisson",
+      "🍩 Nems Nutella"
+    ];
+    const colors = ["#ff5656", "#222", "#ff5656", "#222", "#ff5656", "#222"];
+
+    let currentAngle = 0;
+    let spinning = false;
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, size, size);
+      const sliceAngle = 2 * Math.PI / rewards.length;
+
+      for (let i = 0; i < rewards.length; i++) {
+        const angle = currentAngle + i * sliceAngle;
+
+        // secteur
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, angle, angle + sliceAngle);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.stroke();
+
+        // texte
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + sliceAngle / 2);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 18px Arial";
+        ctx.fillText(rewards[i], radius * 0.65, 10); // recentré vers le milieu
+        ctx.restore();
+      }
+    }
+
+    drawWheel();
+
+    document.getElementById("spin").addEventListener("click", () => {
+      if (spinning) return;
+      if (localStorage.getItem("wheelSpun")) {
+        document.getElementById("result").textContent = "❌ Vous avez déjà tourné la roue.";
+        return;
+      }
+
+      spinning = true;
+      const spinAngle = Math.random() * 360 + 1800; // 5 tours min
+      const duration = 4000;
+      const start = performance.now();
+
+      function animate(now) {
+        const elapsed = now - start;
+        if (elapsed < duration) {
+          const easeOut = 1 - Math.pow(1 - elapsed / duration, 3);
+          currentAngle = (spinAngle * easeOut) * Math.PI / 180;
+          drawWheel();
+          requestAnimationFrame(animate);
+        } else {
+          spinning = false;
+          const sliceAngle = 360 / rewards.length;
+          const degrees = (spinAngle % 360);
+          const index = Math.floor((360 - degrees + 90) % 360 / sliceAngle);
+          const reward = rewards[index];
+          document.getElementById("result").textContent = "🎉 Félicitations, vous avez gagné : " + reward + " !";
+          localStorage.setItem("wheelSpun", "true");
+        }
+      }
+
+      requestAnimationFrame(animate);
+    });
+  </script>
+</body>
+</html>
