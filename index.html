@@ -6,152 +6,162 @@
   <title>Sansushi Clamart 🍣</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
+      font-family: 'Arial', sans-serif;
       background: #000;
-      color: #fff;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
     }
     h1 {
       color: #ff5656;
-      font-size: 2.2em;
-      margin-top: 20px;
+      margin-bottom: 10px;
     }
     h2 {
-      font-size: 1.1em;
+      font-size: 1rem;
+      max-width: 90%;
       margin-bottom: 20px;
-      color: #ddd;
+      line-height: 1.4em;
+      color: #f1f1f1;
     }
     #wheelCanvas {
-      margin: 20px auto;
-      display: block;
+      border-radius: 50%;
+      margin: 20px 0;
     }
-    .pointer {
+    #spinButton {
+      background: #ff5656;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #spinButton:hover {
+      background: #e04a4a;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #ff5656;
+    }
+    #arrow {
       width: 0; 
       height: 0; 
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-bottom: 40px solid #ff5656;
-      margin: 0 auto;
-      position: relative;
-      top: 10px;
+      border-top: 30px solid #ff5656;
+      margin-bottom: -10px;
     }
-    button {
-      background: #ff5656;
-      border: none;
-      color: white;
-      padding: 15px 30px;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: 18px;
-      margin-top: 20px;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #e04a4a;
-    }
-    #result {
-      font-size: 1.4em;
-      font-weight: bold;
-      margin-top: 20px;
-      color: #ff5656;
-    }
-    p {
-      font-size: 0.8em;
-      margin-top: 30px;
-      color: #aaa;
+    small {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #bbb;
     }
   </style>
 </head>
 <body>
   <h1>Sansushi Clamart 🍣</h1>
-  <h2>Nous vous remercions pour votre avis Google.<br> Tournez la roue dès maintenant et remportez votre récompense</h2>
+  <h2>🙏 Merci pour votre avis Google !  
+  Tournez la roue et tentez de gagner une délicieuse récompense 🎁</h2>
 
-  <div class="pointer"></div>
-  <canvas id="wheelCanvas" width="500" height="500"></canvas>
-  <button id="spin">Tournez la roue 🎁</button>
+  <div id="arrow"></div>
+  <canvas id="wheelCanvas" width="320" height="320"></canvas>
+  <button id="spinButton">Tournez la roue 🎁</button>
   <div id="result"></div>
-
-  <p>*Sous réserve de nous montrer la preuve de votre avis Google.</p>
+  <small>*Sous réserve de nous montrer la preuve de votre avis Google.</small>
 
   <script>
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
-    const size = canvas.width;
-    const radius = size / 2;
+    const spinButton = document.getElementById("spinButton");
+    const resultDiv = document.getElementById("result");
+
     const rewards = [
       "🥤 Boisson",
       "🧋 Bubble Tea",
-      "🍫 Moelleux au chocolat",
-      "🍮 Tiramisu",
+      "🍫 Moelleux\nau chocolat",
+      "🍰 Tiramisu",
       "🥤 Boisson",
-      "🍩 Nems Nutella"
+      "🥟 Nems Nutella"
     ];
-    const colors = ["#ff5656", "#222", "#ff5656", "#222", "#ff5656", "#222"];
 
-    let currentAngle = 0;
+    const colors = ["#ff5656", "#111", "#ff5656", "#111", "#ff5656", "#111"];
+    let startAngle = 0;
+    let spinAngle = 0;
     let spinning = false;
+    let hasSpun = localStorage.getItem("hasSpun");
 
     function drawWheel() {
-      ctx.clearRect(0, 0, size, size);
-      const sliceAngle = 2 * Math.PI / rewards.length;
+      const outsideRadius = 150;
+      const textRadius = 100;
+      const insideRadius = 20;
+      const arc = Math.PI / (rewards.length / 2);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.font = "14px Arial";
 
       for (let i = 0; i < rewards.length; i++) {
-        const angle = currentAngle + i * sliceAngle;
+        const angle = startAngle + i * arc;
+        ctx.fillStyle = colors[i];
 
-        // secteur
         ctx.beginPath();
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, angle, angle + sliceAngle);
-        ctx.fillStyle = colors[i % colors.length];
+        ctx.arc(160, 160, outsideRadius, angle, angle + arc, false);
+        ctx.arc(160, 160, insideRadius, angle + arc, angle, true);
         ctx.fill();
-        ctx.stroke();
-
-        // texte
         ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + sliceAngle / 2);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 18px Arial";
-        ctx.fillText(rewards[i], radius * 0.65, 10); // recentré vers le milieu
+
+        ctx.fillStyle = "white";
+        ctx.translate(
+          160 + Math.cos(angle + arc / 2) * textRadius,
+          160 + Math.sin(angle + arc / 2) * textRadius
+        );
+        ctx.rotate(angle + arc / 2 + Math.PI / 2);
+        const text = rewards[i];
+        const lines = text.split("\n");
+        lines.forEach((line, index) => {
+          ctx.fillText(line, -ctx.measureText(line).width / 2, index * 16);
+        });
         ctx.restore();
       }
     }
 
-    drawWheel();
+    function rotateWheel() {
+      spinAngle *= 0.97;
+      if (spinAngle > 0.2) {
+        startAngle += spinAngle * Math.PI / 180;
+        drawWheel();
+        requestAnimationFrame(rotateWheel);
+      } else {
+        spinning = false;
+        const degrees = startAngle * 180 / Math.PI + 90;
+        const arcd = 360 / rewards.length;
+        const index = Math.floor((360 - (degrees % 360)) / arcd) % rewards.length;
+        resultDiv.textContent = "🎉 Félicitations ! Tu as gagné : " + rewards[index];
+        localStorage.setItem("hasSpun", true);
+      }
+    }
 
-    document.getElementById("spin").addEventListener("click", () => {
+    spinButton.addEventListener("click", () => {
       if (spinning) return;
-      if (localStorage.getItem("wheelSpun")) {
-        document.getElementById("result").textContent = "❌ Vous avez déjà tourné la roue.";
+      if (hasSpun) {
+        resultDiv.textContent = "❌ Tu as déjà tourné la roue.";
         return;
       }
-
+      spinAngle = Math.random() * 20 + 200;
       spinning = true;
-      const spinAngle = Math.random() * 360 + 1800; // 5 tours min
-      const duration = 4000;
-      const start = performance.now();
-
-      function animate(now) {
-        const elapsed = now - start;
-        if (elapsed < duration) {
-          const easeOut = 1 - Math.pow(1 - elapsed / duration, 3);
-          currentAngle = (spinAngle * easeOut) * Math.PI / 180;
-          drawWheel();
-          requestAnimationFrame(animate);
-        } else {
-          spinning = false;
-          const sliceAngle = 360 / rewards.length;
-          const degrees = (spinAngle % 360);
-          const index = Math.floor((360 - degrees + 90) % 360 / sliceAngle);
-          const reward = rewards[index];
-          document.getElementById("result").textContent = "🎉 Félicitations, vous avez gagné : " + reward + " !";
-          localStorage.setItem("wheelSpun", "true");
-        }
-      }
-
-      requestAnimationFrame(animate);
+      rotateWheel();
     });
+
+    drawWheel();
   </script>
 </body>
 </html>
