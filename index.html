@@ -6,66 +6,27 @@
 <title>Roulette San Sushi Clamart</title>
 <style>
   body {
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     background: #000;
     color: #fff;
     text-align: center;
-    padding: 30px;
+    padding: 20px;
   }
-
   h1 {
     color: #ff5656;
-    font-size: 2em;
-    margin-bottom: 10px;
   }
-
   p.description {
-    color: #fff;
     font-size: 1.2em;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
-
-  #wheel-container {
-    position: relative;
-    width: 350px;
-    height: 350px;
-    margin: 0 auto;
-  }
-
-  #wheel {
-    width: 100%;
-    height: 100%;
+  canvas {
+    margin-top: 20px;
+    border: 5px solid #ff5656;
     border-radius: 50%;
-    border: 10px solid #ff5656;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 20px #ff5656;
+    background-color: #111;
   }
-
-  .segment {
-    position: absolute;
-    width: 50%;
-    height: 50%;
-    background-color: #ff5656;
-    transform-origin: 100% 100%;
-    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
-  }
-
-  #pointer {
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-bottom: 40px solid #ff5656;
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-  }
-
   #spin {
-    margin-top: 40px;
+    margin-top: 30px;
     padding: 15px 40px;
     font-size: 18px;
     background: #ff5656;
@@ -73,28 +34,17 @@
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
   }
-
-  #spin:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-  }
-
   #result {
-    margin-top: 25px;
+    margin-top: 20px;
     font-size: 1.5em;
-    font-weight: bold;
     color: #ff5656;
+    font-weight: bold;
   }
-
   p.note {
     font-size: 0.9em;
     margin-top: 20px;
-    color: #fff;
   }
-
 </style>
 </head>
 <body>
@@ -102,74 +52,120 @@
 <h1>San Sushi Clamart 🍣</h1>
 <p class="description">Tournez la roue et remportez votre récompense !</p>
 
-<div id="wheel-container">
-  <div id="wheel"></div>
-  <div id="pointer"></div>
+<canvas id="wheelCanvas" width="400" height="400"></canvas>
+<div>
+  <button id="spin">Tourner la roue 🎉</button>
 </div>
-
-<button id="spin">Tourner la roue 🎉</button>
 <div id="result"></div>
 <p class="note">*sous réserve de nous montrer la preuve de votre avis Google</p>
 
 <script>
-  const segments = [
-    {text: "Boisson 🥤", color: "#ff5656"},
-    {text: "Bubble Tea 🧋", color: "#000"},
-    {text: "Moelleux au chocolat 🍫", color: "#ff5656"},
-    {text: "Tiramisu 🍮", color: "#000"},
-    {text: "Boisson 🥤", color: "#ff5656"},
-  ];
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const spinButton = document.getElementById('spin');
+const resultDiv = document.getElementById('result');
 
-  const wheel = document.getElementById('wheel');
-  const spinButton = document.getElementById('spin');
-  const resultDiv = document.getElementById('result');
+const segments = [
+  {text: "Boisson 🥤", color: "#ff5656"},
+  {text: "Bubble Tea 🧋", color: "#000"},
+  {text: "Moelleux au chocolat 🍫", color: "#ff5656"},
+  {text: "Tiramisu 🍮", color: "#000"},
+  {text: "Boisson 🥤", color: "#ff5656"},
+];
 
-  // Créer les segments
-  const segmentCount = segments.length;
-  const angle = 360 / segmentCount;
+const segmentCount = segments.length;
+const angle = 2 * Math.PI / segmentCount;
+let rotation = 0;
+let spinning = false;
 
-  segments.forEach((segment, index) => {
-    const seg = document.createElement('div');
-    seg.classList.add('segment');
-    seg.style.backgroundColor = segment.color;
-    seg.style.transform = `rotate(${index * angle}deg) skewY(-60deg)`;
-    
-    const label = document.createElement('div');
-    label.style.position = 'absolute';
-    label.style.width = '100%';
-    label.style.height = '100%';
-    label.style.display = 'flex';
-    label.style.alignItems = 'flex-start';
-    label.style.justifyContent = 'center';
-    label.style.transform = 'skewY(60deg) rotate(' + (angle/2) + 'deg)';
-    label.style.fontWeight = 'bold';
-    label.style.color = '#fff';
-    label.innerText = segment.text;
+// Vérifier cookie pour un seul tour
+if (document.cookie.includes("roulettePlayed=true")) {
+  spinButton.disabled = true;
+  resultDiv.innerText = "Vous avez déjà tourné la roulette !";
+}
 
-    seg.appendChild(label);
-    wheel.appendChild(seg);
-  });
+// Dessiner la roue
+function drawWheel() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = canvas.width / 2 - 10;
 
-  // Vérifier cookie pour un seul tour
-  if (document.cookie.includes("roulettePlayed=true")) {
-    spinButton.disabled = true;
-    resultDiv.innerText = "Vous avez déjà tourné la roulette !";
+  for (let i = 0; i < segmentCount; i++) {
+    const startAngle = i * angle + rotation;
+    const endAngle = startAngle + angle;
+
+    // Segment
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = segments[i].color;
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Texte
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(startAngle + angle / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px Arial";
+    ctx.fillText(segments[i].text, radius - 10, 10);
+    ctx.restore();
   }
 
-  spinButton.addEventListener("click", () => {
-    spinButton.disabled = true;
+  // Flèche en haut
+  ctx.fillStyle = "#ff5656";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 10, 5);
+  ctx.lineTo(centerX + 10, 5);
+  ctx.lineTo(centerX, 30);
+  ctx.closePath();
+  ctx.fill();
+}
 
-    const randDeg = Math.floor(Math.random() * 360);
-    wheel.style.transition = "transform 5s ease-out";
-    wheel.style.transform = `rotate(${randDeg + 1440}deg)`;
+drawWheel();
 
-    setTimeout(() => {
-      const chosenIndex = Math.floor((360 - (randDeg % 360)) / angle) % segmentCount;
-      resultDiv.innerText = `Félicitations ! Vous gagnez : ${segments[chosenIndex].text}`;
+// Tourner la roue
+spinButton.addEventListener('click', () => {
+  if (spinning) return;
+  spinning = true;
+  spinButton.disabled = true;
 
+  const spins = Math.floor(Math.random() * 5) + 5; // entre 5 et 9 tours
+  const stopAngle = Math.random() * 2 * Math.PI;
+  const totalRotation = spins * 2 * Math.PI + stopAngle;
+
+  const duration = 5000; // 5 secondes
+  const start = performance.now();
+
+  function animate(now) {
+    const elapsed = now - start;
+    if (elapsed < duration) {
+      const progress = elapsed / duration;
+      rotation = totalRotation * easeOutCubic(progress);
+      drawWheel();
+      requestAnimationFrame(animate);
+    } else {
+      rotation = totalRotation;
+      drawWheel();
+      // Déterminer le segment gagnant
+      const index = segmentCount - 1 - Math.floor((rotation % (2 * Math.PI)) / angle);
+      resultDiv.innerText = `Félicitations ! Vous gagnez : ${segments[index].text}`;
       document.cookie = "roulettePlayed=true; max-age=31536000; path=/";
-    }, 5000);
-  });
+      spinning = false;
+    }
+  }
+
+  requestAnimationFrame(animate);
+});
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
 </script>
 
 </body>
