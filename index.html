@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>San Sushi - Roue des récompenses</title>
+  <title>Sansushi Clamart 🍣</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,133 +13,16 @@
     }
     h1 {
       color: #ff5656;
+      font-size: 2.2em;
       margin-top: 20px;
     }
-    p {
+    h2 {
+      font-size: 1.1em;
       margin-bottom: 20px;
+      color: #ddd;
     }
-    canvas {
-      margin-top: 20px;
-      border-radius: 50%;
-      box-shadow: 0 0 20px rgba(255,86,86,0.7);
+    #wheelCanvas {
+      margin: 20px auto;
+      display: block;
     }
-    #spin {
-      margin-top: 20px;
-      padding: 12px 30px;
-      background: #ff5656;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 18px;
-      transition: 0.3s;
-    }
-    #spin:hover {
-      background: #e04e4e;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
-      color: #aaa;
-    }
-  </style>
-</head>
-<body>
-  <h1>🎉 Roue des Récompenses San Sushi 🎉</h1>
-  <p>Tournez la roue et remportez votre récompense !</p>
-  
-  <canvas id="wheel" width="500" height="500"></canvas><br>
-  <button id="spin">🎡 Tourner la roue</button>
-  <div id="result"></div>
-
-  <footer>
-    *Sous réserve de montrer la preuve de votre avis Google.
-  </footer>
-
-  <script>
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spin");
-    const result = document.getElementById("result");
-
-    const rewards = [
-      "🥤 Boisson",
-      "🧋 Bubble Tea",
-      "🍫 Moelleux au chocolat",
-      "🍮 Tiramisu",
-      "🥞 Nems Nutella",
-      "🥤 Boisson"
-    ];
-
-    const colors = ["#ff5656", "#111", "#ff5656", "#111", "#ff5656", "#111"];
-
-    let startAngle = 0;
-    let arc = (2 * Math.PI) / rewards.length;
-    let spinAngle = 0;
-    let spinning = false;
-    let hasSpun = false;
-
-    function drawWheel() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < rewards.length; i++) {
-        const angle = startAngle + i * arc;
-        
-        // Dessin tranche
-        ctx.beginPath();
-        ctx.fillStyle = colors[i];
-        ctx.moveTo(250, 250);
-        ctx.arc(250, 250, 250, angle, angle + arc);
-        ctx.lineTo(250, 250);
-        ctx.fill();
-        ctx.save();
-
-        // Position et orientation texte
-        ctx.translate(
-          250 + Math.cos(angle + arc / 2) * 160,
-          250 + Math.sin(angle + arc / 2) * 160
-        );
-        ctx.rotate(angle + arc / 2);
-        ctx.fillStyle = "#fff";
-        ctx.font = "16px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(rewards[i], 0, 5);
-        ctx.restore();
-      }
-    }
-
-    function rotateWheel() {
-      spinAngle *= 0.97;
-      if (spinAngle > 0.2) {
-        startAngle += (spinAngle * Math.PI) / 180;
-        drawWheel();
-        requestAnimationFrame(rotateWheel);
-      } else {
-        spinning = false;
-        const degrees = (startAngle * 180) / Math.PI + 90;
-        const arcd = (360 / rewards.length);
-        const index = Math.floor((360 - (degrees % 360)) / arcd);
-        result.innerHTML = `🎊 Félicitations ! Tu as gagné : <strong>${rewards[index]}</strong>`;
-        hasSpun = true;
-      }
-    }
-
-    spinBtn.addEventListener("click", () => {
-      if (spinning) return;
-      if (hasSpun) {
-        result.innerHTML = "⚠️ Vous avez déjà tourné la roue.";
-        return;
-      }
-      spinAngle = Math.random() * 20 + 30;
-      spinning = true;
-      rotateWheel();
-    });
-
-    drawWheel();
-  </script>
-</body>
-</html>
+    .po
