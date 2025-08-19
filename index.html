@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sansushi Clamart 🍣</title>
+  <title>Sansushi Clamart 🍣 - Roulette</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
       color: #fff;
     }
     #wheelCanvas {
-      margin-top: 20px;
+      margin-top: 10px;
       border-radius: 50%;
     }
     #spinBtn {
@@ -46,15 +46,16 @@
       font-weight: bold;
       color: #ff5656;
     }
+    /* 🔽 Flèche orientée vers le bas */
     .pointer {
       width: 0; 
       height: 0; 
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-bottom: 40px solid #ff5656;
+      border-top: 40px solid #ff5656; /* flèche vers le bas */
       margin: 0 auto;
       position: relative;
-      top: 10px;
+      top: -5px;
     }
     .note {
       margin-top: 40px;
@@ -67,8 +68,8 @@
   <h1>Sansushi Clamart 🍣</h1>
   <p class="subtitle">Merci pour votre avis Google 💬<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
   
-  <div class="pointer"></div>
   <canvas id="wheelCanvas" width="350" height="350"></canvas>
+  <div class="pointer"></div> <!-- Flèche après la roue -->
   <br>
   <button id="spinBtn">Tournez la roue 🎁</button>
   <p id="result"></p>
@@ -81,14 +82,13 @@
     const spinBtn = document.getElementById("spinBtn");
     const result = document.getElementById("result");
 
-    const rewards = ["🥤 Boisson", "🧋 Bubble Tea", "🍫 Moelleux\nau chocolat", "🍰 Tiramisu", "🥤 Boisson", "🥟 Nems Nutella"];
+    const rewards = ["🥤 Boisson", "🧋 Bubble Tea", "🍫 Fondant\nau chocolat", "🍰 Tiramisu", "🥤 Boisson", "☕️ Café"];
     const colors = ["#ff5656", "#111", "#ff5656", "#111", "#ff5656", "#111"];
 
     let startAngle = 0;
     let arc = (2 * Math.PI) / rewards.length;
     let spinTimeout = null;
     let spinAngle = 0;
-    let spinAngleStep = 0;
 
     // 🔒 Vérification si déjà joué
     if (localStorage.getItem("wheelPlayed")) {
@@ -114,7 +114,7 @@
 
         // Texte centré
         ctx.fillStyle = "white";
-        ctx.translate(175 + Math.cos(angle + arc / 2) * 120, 175 + Math.sin(angle + arc / 2) * 120);
+        ctx.translate(175 + Math.cos(angle + arc / 2) * 110, 175 + Math.sin(angle + arc / 2) * 110);
         ctx.rotate(angle + arc / 2);
         ctx.textAlign = "center";
         ctx.fillText(rewards[i], 0, 0);
