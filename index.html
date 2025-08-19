@@ -46,16 +46,17 @@
       font-weight: bold;
       color: #ff5656;
     }
-    /* 🔽 Flèche orientée vers le bas */
+    /* Flèche au-dessus de la roue */
     .pointer {
       width: 0; 
       height: 0; 
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-top: 40px solid #ff5656; /* flèche vers le bas */
+      border-top: 40px solid #ff5656; /* vers le bas */
       margin: 0 auto;
       position: relative;
-      top: -5px;
+      top: 20px;
+      z-index: 10;
     }
     .note {
       margin-top: 40px;
@@ -68,8 +69,8 @@
   <h1>Sansushi Clamart 🍣</h1>
   <p class="subtitle">Merci pour votre avis Google 💬<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
   
+  <div class="pointer"></div>
   <canvas id="wheelCanvas" width="350" height="350"></canvas>
-  <div class="pointer"></div> <!-- Flèche après la roue -->
   <br>
   <button id="spinBtn">Tournez la roue 🎁</button>
   <p id="result"></p>
@@ -82,7 +83,14 @@
     const spinBtn = document.getElementById("spinBtn");
     const result = document.getElementById("result");
 
-    const rewards = ["🥤 Boisson", "🧋 Bubble Tea", "🍫 Fondant\nau chocolat", "🍰 Tiramisu", "🥤 Boisson", "☕️ Café"];
+    const rewards = [
+      "🥤 Boisson",
+      "🧋 Bubble Tea",
+      "🍫 Fondant\nau chocolat",
+      "🍰 Tiramisu",
+      "🥟 Nems Nutella",
+      "☕️ Café"
+    ];
     const colors = ["#ff5656", "#111", "#ff5656", "#111", "#ff5656", "#111"];
 
     let startAngle = 0;
@@ -90,7 +98,7 @@
     let spinTimeout = null;
     let spinAngle = 0;
 
-    // 🔒 Vérification si déjà joué
+    // Vérifie si déjà joué
     if (localStorage.getItem("wheelPlayed")) {
       spinBtn.disabled = true;
       spinBtn.innerText = "Vous avez déjà joué 🎉";
@@ -114,10 +122,16 @@
 
         // Texte centré
         ctx.fillStyle = "white";
-        ctx.translate(175 + Math.cos(angle + arc / 2) * 110, 175 + Math.sin(angle + arc / 2) * 110);
+        ctx.translate(
+          175 + Math.cos(angle + arc / 2) * 110,
+          175 + Math.sin(angle + arc / 2) * 110
+        );
         ctx.rotate(angle + arc / 2);
         ctx.textAlign = "center";
-        ctx.fillText(rewards[i], 0, 0);
+        let lines = rewards[i].split("\n");
+        for (let j = 0; j < lines.length; j++) {
+          ctx.fillText(lines[j], 0, j * 16);
+        }
         ctx.restore();
       }
     }
@@ -130,12 +144,13 @@
         spinTimeout = requestAnimationFrame(rotateWheel);
       } else {
         cancelAnimationFrame(spinTimeout);
-        const degrees = (startAngle * 180) / Math.PI + 90;
+
+        // Calcule le segment gagnant basé sur la flèche en haut
+        const degrees = (startAngle * 180) / Math.PI;
         const arcd = (arc * 180) / Math.PI;
-        const index = Math.floor((360 - (degrees % 360)) / arcd) % rewards.length;
+        const index = Math.floor(((degrees % 360) / arcd)) % rewards.length;
 
         result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
-        // 🔒 Sauvegarde "déjà joué"
         localStorage.setItem("wheelPlayed", "true");
         spinBtn.disabled = true;
         spinBtn.innerText = "Vous avez déjà joué 🎉";
