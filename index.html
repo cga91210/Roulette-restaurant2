@@ -117,13 +117,14 @@
       } else {
         cancelAnimationFrame(spinTimeout);
 
-        // 🎯 Calcul exact avec flèche en haut qui pointe vers le bas (angle -π/2)
-        const pointerAngle = -Math.PI / 2; // 12h
-        let phi = (pointerAngle - (startAngle % (2 * Math.PI)));
-        if (phi < 0) phi += 2 * Math.PI; // normalise 0..2π
-        const index = Math.floor(phi / arc) % rewards.length;
+        
 
-        result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+      // 🎯 Calcul exact avec flèche en haut qui pointe vers le bas
+      const pointerAngle = -Math.PI / 2; // flèche en haut = -90°
+      let normalizedAngle = (2 * Math.PI + pointerAngle - (startAngle % (2 * Math.PI))) % (2 * Math.PI);
+      const index = Math.floor(normalizedAngle / arc);
+      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+
         localStorage.setItem(PLAY_KEY, "true");
         spinBtn.disabled = true;
         spinBtn.innerText = "Vous avez déjà joué 🎉";
